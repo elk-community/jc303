@@ -10,8 +10,8 @@ project(JC303 VERSION 0.12.3)
 
 ### Dependency versions ###
 
-set(LIB_JUCE_TAG "8.0.5")
-set(LIB_CLAP_TAG "a3227c52fa082d2df33f4377ed1e050dd8a52595")
+set(LIB_JUCE_TAG "8.0.12")
+set(LIB_CLAP_TAG "e1f67893cc409a40c1154fa2e78c97046da24ce0")
 set(LIB_CHOWDSP_UTILS_TAG "ffc70ba399f9afaeefb996eb14e55a1d487270b8")
 
 ### Gui setup
@@ -39,6 +39,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects" ON)
 
 
+find_package(JUCE CONFIG REQUIRED)        # If you've installed JUCE to your system
+
 ### Dependency management ###
 
 include(FetchContent)
@@ -48,14 +50,6 @@ include(FetchContent)
 # rebuilding the dependencies.
 set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/lib" CACHE PATH "External dependencies path." FORCE)
 
-FetchContent_Declare(juce
-    GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
-    GIT_TAG        ${LIB_JUCE_TAG}
-    GIT_SHALLOW    TRUE
-    GIT_CONFIG     advice.detachedHead=false
-    SOURCE_DIR     "${FETCHCONTENT_BASE_DIR}/JUCE"
-    SUBBUILD_DIR   "${FETCHCONTENT_BASE_DIR}/JUCE-Subbuild"
-    BINARY_DIR     "${FETCHCONTENT_BASE_DIR}/JUCE-Build")
 
 FetchContent_Declare(juce-clap-extensions
     GIT_REPOSITORY https://github.com/free-audio/clap-juce-extensions.git
@@ -67,7 +61,7 @@ FetchContent_Declare(chowdsp_utils
     GIT_TAG        ${LIB_CHOWDSP_UTILS_TAG}
     GIT_CONFIG     advice.detachedHead=false)
 
-FetchContent_MakeAvailable(juce juce-clap-extensions chowdsp_utils)
+FetchContent_MakeAvailable(juce-clap-extensions chowdsp_utils)
 
 # gui resources BinaryData via CMakeLists.txt
 add_subdirectory(src/gui/${GUI})
@@ -77,13 +71,7 @@ add_subdirectory(src/gui/${GUI})
 # If you are building a VST2 or AAX plugin, CMake needs to be told where to find these SDKs.
 # This setup should be done before calling `juce_add_plugin`.
 
-# do we have vst2 sdk to build it?
-if(EXISTS "${PROJECT_SOURCE_DIR}/vstsdk2.4")
-    juce_set_vst2_sdk_path("${PROJECT_SOURCE_DIR}/vstsdk2.4")
-    set(PLUGIN_FORMATS AU VST VST3 LV2)
-else()
-    set(PLUGIN_FORMATS AU VST3 LV2)
-endif()
+set(PLUGIN_FORMATS VST3)
 
 # `juce_add_plugin` adds a static library target with the name passed as the first argument.
 # This target is a normal CMake target, but has a lot of extra properties set
@@ -121,6 +109,7 @@ juce_add_plugin("${PROJECT_NAME}"
                                                 # Filter, Generator, Mastering, Modulation, Mono, Network, NoOfflineProcess,
                                                 # OnlyOfflineProcess, OnlyRT, Pitch Shift, Restoration, Reverb, Sampler, Spatial,
                                                 # Stereo, Surround, Synth, Tools, Up-Downmix
+    VST3_AUTO_MANIFEST FALSE
     AU_MAIN_TYPE "kAudioUnitType_MusicDevice"   # Should be one or more, separated by spaces, of the following:
                                                 # kAudioUnitType_Effect, kAudioUnitType_FormatConverter, kAudioUnitType_Generator,
                                                 # kAudioUnitType_MIDIProcessor, kAudioUnitType_Mixer, kAudioUnitType_MusicDevice,
@@ -181,7 +170,6 @@ target_link_libraries("${PROJECT_NAME}"
         juce::juce_audio_utils
     PUBLIC
         juce::juce_recommended_config_flags
-        juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
 
 # Add the subdirectory with source files.
