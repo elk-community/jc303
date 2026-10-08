@@ -80,7 +80,7 @@ set(PLUGIN_FORMATS VST3)
 # Check the readme at `docs/CMake API.md` in the JUCE repo for the full list.
 
 juce_add_plugin("${PROJECT_NAME}"
-    FORMATS ${PLUGIN_FORMATS} Standalone        # The formats to build. Valid formats: Standalone Unity VST3 AU AUv3 AAX VST LV2.
+    FORMATS ${PLUGIN_FORMATS}                   # The formats to build. Valid formats: Standalone Unity VST3 AU AUv3 AAX VST LV2.
                                                 # AU and AUv3 plugins will only be enabled when building on macOS.
     PRODUCT_NAME "JC303"                        # The name of the final executable, which can differ from the target name.
     PLUGIN_NAME "JC303"                         # Name of the plugin that will be displayed in the DAW. Can differ from PRODUCT_NAME.
